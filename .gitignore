@@ -1,2 +1,4 @@
 .vscode/
 target/
+
+database.xml
