@@ -1,5 +1,6 @@
 package dam.m06.uf3;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -12,18 +13,21 @@ public class View
 			What do you want to do?
 			0. Quit
 			1. See active threads
-			2. Create thread
-			3. Delete thread
-			4. See messages on a thread
-			5. Reply to a thread
-			6. Delete a message on a thread
+			2. See threads filtered by date
+			3. Create thread
+			4. Delete thread
+			5. See messages on a thread
+			6. See messages on thread filtered by date
+			7. Reply to a thread
+			8. Delete a message on a thread
 			"""
 		);
 	}
 
 	public static void SeeThreads(ArrayList<Thread> threads, boolean numbered)
 	{
-		int i = 0;
+		int i = 1;
+		System.out.println("\nThreads:"); // Blank line
 		for (Thread thr : threads) {
 			if(numbered)
 				System.out.printf("%3d. ", i++);
@@ -52,13 +56,9 @@ public class View
 
 	public static void SeeReplies(Thread thr, boolean numbered)
 	{
-		int i = 0;
 		System.out.println(thr);
 		for (Message msg : thr.getReplies()) {
-			if(numbered)
-				System.out.printf("%3d. ", i++);
-
-			System.out.println(msg);
+			System.out.printf("%3d. %s\n", msg.getId(), msg.getText());
 		}
 		System.out.println(); // Blank line
 	}
@@ -190,7 +190,7 @@ public class View
 			if(in.hasNextInt()) {
 				result = in.nextInt();
 			
-				if(result >= threadCount || result < 0) {
+				if(result > threadCount || result <= 0) {
 					System.err.println("Invalid input.");
 					error = true;
 				}
@@ -210,7 +210,7 @@ public class View
 			in.nextLine();
 		} while (error);
 	
-		return thrs.get(result);
+		return thrs.get(result - 1);
 	}
 
 	/**
@@ -259,5 +259,30 @@ public class View
 		} while (error);
 	
 		return msgs.get(result);
+	}
+
+	public static LocalDateTime getDate(Scanner in, String prompt)
+	{
+		boolean error;
+		String dateStr;
+		LocalDateTime date = null;
+		do {
+			error = false;
+			try {
+				dateStr = getString(in, prompt);
+				if(dateStr.equals(""))
+					return null;
+
+				dateStr = dateStr.replace(' ', 'T'); // Nevessary for ISO 8601
+
+				date = LocalDateTime.parse(dateStr);
+			} catch (Exception e) {
+				error = true;
+				System.err.println("Invalid date! Format is YYYY-MM-DD HH:mm:SS");
+			}
+
+		} while (error);
+
+		return date;
 	}
 }
