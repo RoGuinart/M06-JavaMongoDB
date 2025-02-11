@@ -56,8 +56,8 @@ public class Message
 		Document doc = new Document();
 
 		doc.append("id", id)
-		.append("date_posted", date.toString());
-		.append("text", text)
+		.append("date_posted", date.toString())
+		.append("text", text);
 
 		if(attachment != null)
 			doc.append("attachments", attachment);
