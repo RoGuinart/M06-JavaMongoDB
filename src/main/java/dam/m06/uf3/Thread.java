@@ -1,6 +1,7 @@
 package dam.m06.uf3;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 import org.bson.Document;
 
@@ -31,8 +32,14 @@ public class Thread
 		this.id = id;
 		this.main_post = main_post;
 		this.replies = replies;
-		// Last reply will always have the highest ID
-		this.reply_count = replies.getLast().getId(); 
+
+		try {
+			// Last reply will always have the highest ID
+			this.reply_count = replies.getLast().getId();
+		} catch (NoSuchElementException e) {
+			// If there are no replies, set to 1, for the next reply
+			this.reply_count = 1;
+		}
 	}
 
 	public void reply(Message reply)
@@ -66,6 +73,20 @@ public class Thread
 
 		return doc;
 	}
+
+	public static Thread parseDocument(Document doc)
+	{
+		int id = (Integer) doc.get("thread_id");
+		Message main_post = Message.parseDocument((Document) doc.get("main_post"));
+
+		ArrayList<Document> replyDoc = (ArrayList<Document>) doc.get("replies");
+		ArrayList<Message> replies = new ArrayList<Message>();
+		for (Document reply : replyDoc) {
+			replies.add(Message.parseDocument(reply));
+		}
+
+		return new Thread(id, main_post, replies);
+	} 
 
 	@Override
 	public String toString()

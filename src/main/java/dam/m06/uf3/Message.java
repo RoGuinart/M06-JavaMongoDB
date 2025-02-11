@@ -65,6 +65,20 @@ public class Message
 		return doc;
 	}
 
+	public static Message parseDocument(Document doc)
+	{
+		int reply_id = (Integer) doc.get("reply_id");
+
+		LocalDateTime date;
+		String dateStr = (String) doc.get("date");
+		date = (dateStr != null) ? LocalDateTime.parse(dateStr) : null;
+
+		String text = (String) doc.get("text");
+		String attachment = (String) doc.get("attachment");
+
+		return new Message(reply_id, text, attachment, date);
+	}
+
 	@Override
 	public String toString()
 	{
