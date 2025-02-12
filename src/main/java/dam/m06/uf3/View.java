@@ -17,9 +17,8 @@ public class View
 			3. Create thread
 			4. Delete thread
 			5. See messages on a thread
-			6. See messages on thread filtered by date
-			7. Reply to a thread
-			8. Delete a message on a thread
+			6. Reply to a thread
+			7. Delete a message on a thread
 			"""
 		);
 	}

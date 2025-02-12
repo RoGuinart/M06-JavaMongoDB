@@ -60,11 +60,7 @@ public class Main
 				View.SeeReplies(thr, false);
 				break;
 			}
-			case 6: // See messages on thread filtered by date
-			{
-				break;
-			}
-			case 7: // Reply to a thread
+			case 6: // Reply to a thread
 			{
 				Thread thr = View.getThread(in, Model.GetThreads(null));
 
@@ -77,7 +73,7 @@ public class Main
 				Model.ReplyToThread(thr, msg);
 				break;
 			}
-			case 8: // Delete message on a thread
+			case 7: // Delete message on a thread
 			{
 				Thread thr = View.getThread(in, Model.GetThreads(null));
 
