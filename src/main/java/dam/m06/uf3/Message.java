@@ -55,12 +55,12 @@ public class Message
 	{
 		Document doc = new Document();
 
-		doc.append("id", id)
+		doc.append("reply_id", id)
 		.append("date_posted", date.toString())
 		.append("text", text);
 
 		if(attachment != null)
-			doc.append("attachments", attachment);
+			doc.append("attachment", attachment);
 
 		return doc;
 	}
@@ -70,7 +70,7 @@ public class Message
 		int reply_id = (Integer) doc.get("reply_id");
 
 		LocalDateTime date;
-		String dateStr = (String) doc.get("date");
+		String dateStr = (String) doc.get("date_posted");
 		date = (dateStr != null) ? LocalDateTime.parse(dateStr) : null;
 
 		String text = (String) doc.get("text");

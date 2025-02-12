@@ -13,6 +13,10 @@ public class Main
 	public static void main(String[] args)
 	{
 		Scanner in = new Scanner(System.in);
+
+		// Dirty way to setup Thread's id_count variable
+		Model.GetThreads(null);
+
 		int choice;
 		do {
 			choice = View.menu(in);
@@ -37,10 +41,15 @@ public class Main
 			}
 			case 3: // Create thread
 			{
+				Thread thr = View.CreateThread(in);
+				Model.CreateThread(thr);
+
 				break;
 			}
 			case 4: // Delete thread
 			{
+				Thread thr = View.getThread(in, Model.GetThreads(null));
+				Model.DeleteThread(thr);
 				break;
 			}
 			case 5: // See messages on thread
@@ -48,7 +57,7 @@ public class Main
 				ArrayList<Thread> thrs = Model.GetThreads(null);
 				Thread thr = View.getThread(in, thrs);
 				
-				View.SeeReplies(thr, true);
+				View.SeeReplies(thr, false);
 				break;
 			}
 			case 6: // See messages on thread filtered by date
@@ -57,10 +66,31 @@ public class Main
 			}
 			case 7: // Reply to a thread
 			{
+				Thread thr = View.getThread(in, Model.GetThreads(null));
+
+				// Cancel
+				if(thr == null)
+					break;
+
+				Message msg = View.ReplyToThread(in);
+
+				Model.ReplyToThread(thr, msg);
 				break;
 			}
 			case 8: // Delete message on a thread
 			{
+				Thread thr = View.getThread(in, Model.GetThreads(null));
+
+				// Cancel
+				if(thr == null)
+					break;
+				Message msg = View.getReply(in, thr);
+
+				// Cancel
+				if(msg == null)
+					break;
+
+				Model.DeleteReply(thr, msg);
 				break;
 			}
 			default:

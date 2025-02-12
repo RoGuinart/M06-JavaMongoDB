@@ -56,9 +56,10 @@ public class View
 
 	public static void SeeReplies(Thread thr, boolean numbered)
 	{
+		int i = 1;
 		System.out.println(thr);
 		for (Message msg : thr.getReplies()) {
-			System.out.printf("%3d. %s\n", msg.getId(), msg.getText());
+			System.out.printf("%3d. %s\n", numbered ? i++ : msg.getId(), msg.getText());
 		}
 		System.out.println(); // Blank line
 	}
@@ -69,14 +70,14 @@ public class View
 	 * @param thr Thread to reply to. This same object must then be uploaded
 	 *            to the database
 	 */
-	public static void ReplyToThread(Scanner in, Thread thr)
+	public static Message ReplyToThread(Scanner in)
 	{
 		String op = getString(in, "Please write the thread message:");
 
 		String attachment = getAttachment(in);
-		Message main_post = new Message(op, attachment);
+		Message msg = new Message(op, attachment);
 
-		thr.reply(main_post);
+		return msg;
 	}
 
 	public static void DeleteReply(Scanner in, Thread thr)
@@ -85,7 +86,6 @@ public class View
 		Message msg = getReply(in, thr);
 
 		if(msg != null)
-
 			thr.getReplies().remove(msg);
 	}
 	
@@ -238,7 +238,7 @@ public class View
 			if(in.hasNextInt()) {
 				result = in.nextInt();
 			
-				if(result >= threadCount || result < 0) {
+				if(result > threadCount || result <= 0) {
 					System.err.println("Invalid input.");
 					error = true;
 				}
@@ -258,7 +258,7 @@ public class View
 			in.nextLine();
 		} while (error);
 	
-		return msgs.get(result);
+		return msgs.get(result-1);
 	}
 
 	public static LocalDateTime getDate(Scanner in, String prompt)
@@ -278,7 +278,7 @@ public class View
 				date = LocalDateTime.parse(dateStr);
 			} catch (Exception e) {
 				error = true;
-				System.err.println("Invalid date! Format is YYYY-MM-DD HH:mm:SS");
+				System.err.println("Invalid date! Format is 'YYYY-MM-DD HH:mm:SS'");
 			}
 
 		} while (error);

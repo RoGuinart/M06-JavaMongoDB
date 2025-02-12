@@ -8,6 +8,7 @@ import org.bson.conversions.Bson;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
 
 public class Model
 {
@@ -16,7 +17,8 @@ public class Model
 		MongoDatabase db = ConnectionManager.getConnection();
 		MongoCollection<Document> collection = db.getCollection("Threads");
 
-		collection.insertOne(thr.toDocument());
+		Document thrDoc = thr.toDocument();
+		collection.insertOne(thrDoc);
 
 		ConnectionManager.closeConnection();
 	}
@@ -48,7 +50,14 @@ public class Model
 
 	public static void UpdateThread(Thread thr)
 	{
+		MongoDatabase db = ConnectionManager.getConnection();
+		MongoCollection<Document> collection = db.getCollection("Threads");
 
+		Document query = new Document().append("thread_id", thr.getId());
+
+		collection.deleteOne(thr.toDocument());
+
+		ConnectionManager.closeConnection();
 	}
 
 	public static void DeleteThread(Thread thr)
@@ -57,6 +66,36 @@ public class Model
 		MongoCollection<Document> collection = db.getCollection("Threads");
 
 		collection.deleteOne(thr.toDocument());
+
+		ConnectionManager.closeConnection();
+	}
+
+	public static void ReplyToThread(Thread thr, Message reply)
+	{
+
+		MongoDatabase db = ConnectionManager.getConnection();
+		MongoCollection<Document> collection = db.getCollection("Threads");
+
+		thr.reply(reply); // Set message ID in the thread
+
+		Document query = new Document().append("thread_id", thr.getId());
+		Bson update = Updates.addToSet("replies", reply.toDocument());
+
+		collection.updateOne(query, update);
+
+		ConnectionManager.closeConnection();
+	}
+
+	public static void DeleteReply(Thread thr, Message reply)
+	{
+
+		MongoDatabase db = ConnectionManager.getConnection();
+		MongoCollection<Document> collection = db.getCollection("Threads");
+
+		Document query = new Document().append("thread_id", thr.getId());
+		Bson update = Updates.pull("replies", reply.toDocument());
+
+		collection.updateOne(query, update);
 
 		ConnectionManager.closeConnection();
 	}

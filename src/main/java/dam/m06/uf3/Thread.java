@@ -9,13 +9,13 @@ public class Thread
 {
 	private static int id_count; // TODO: get highest thread ID
 	private int id;
-	private int reply_count = 0; // Used to create message ID when replying
+	private int reply_count = 1; // Used to create message ID when replying
 	private Message main_post;
 	private ArrayList<Message> replies;
 
 	public Thread(Message main_post)
 	{
-		main_post.setId(reply_count++);
+		main_post.setId(0);
 		this.main_post = main_post;
 		this.replies = new ArrayList<Message>();
 		this.id = id_count++;
@@ -33,19 +33,20 @@ public class Thread
 		this.main_post = main_post;
 		this.replies = replies;
 
-		try {
-			// Last reply will always have the highest ID
-			this.reply_count = replies.getLast().getId();
-		} catch (NoSuchElementException e) {
-			// If there are no replies, set to 1, for the next reply
-			this.reply_count = 1;
-		}
+		if(!replies.isEmpty())
+			this.reply_count = replies.getLast().getId() + 1;
+
+		if(id > id_count)
+			id_count = id + 1;
 	}
 
+	/**
+	 * Sets a reply ID for a thread
+	 */
 	public void reply(Message reply)
 	{
 		reply.setId(reply_count++);
-		replies.add(reply);
+		//replies.add(reply);
 	}
 
 	public int getId()
@@ -66,10 +67,13 @@ public class Thread
 	public Document toDocument()
 	{
 		Document doc = new Document();
+		ArrayList<Document> replyDoc = new ArrayList<Document>();
+		for (Message msg : replies)
+			replyDoc.add(msg.toDocument());
 
-		doc.append("id", id)
-		.append("main_post", main_post)
-		.append("replies", replies); // Would this work as intended?
+		doc.append("thread_id", id)
+		.append("main_post", main_post.toDocument())
+		.put("replies", replyDoc);
 
 		return doc;
 	}
