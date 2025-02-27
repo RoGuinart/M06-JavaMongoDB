@@ -79,14 +79,6 @@ public class Model
 
 	public static void DeleteThread(Thread thr)
 	{
-/*
-		MongoDatabase db = ConnectionManager.getConnection();
-		MongoCollection<Document> collection = db.getCollection("Threads");
-
-		collection.deleteOne(thr.toJson());
-
-		ConnectionManager.closeConnection();
-*/
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("text", thr.getMainPost().getText());
 
@@ -107,27 +99,14 @@ public class Model
 
 	public static void ReplyToThread(Thread thr, Message reply)
 	{
-/*
-		MongoDatabase db = ConnectionManager.getConnection();
-		MongoCollection<Document> collection = db.getCollection("Threads");
-
-		thr.reply(reply); // Set message ID in the thread
-
-		Document query = new Document().append("thread_id", thr.getId());
-		Bson update = Updates.addToSet("replies", reply.toJson());
-
-		collection.updateOne(query, update);
-
-		ConnectionManager.closeConnection();
-/* /
 	JSONObject jsonObject = new JSONObject();
 	jsonObject.put("text", thr.getMainPost().getText());
 
 	HttpClient client = HttpClient.newHttpClient();
 	HttpRequest request = HttpRequest.newBuilder()
-		.uri(URI.create(url + "/thread/" + thr.getId()))
+		.uri(URI.create(API_URL + "/thread/" + thr.getId()))
 		.header("Content-Type", "application/json")
-		.PUT(HttpRequest.BodyPublishers.ofString(thr.toJson().toString()))
+		.PUT(HttpRequest.BodyPublishers.ofString(reply.toJson()))
 		.build();
 
 	try {
@@ -137,7 +116,6 @@ public class Model
 		e.printStackTrace();
 	}
 
-*/
 	}
 
 	public static void DeleteReply(Thread thr, Message reply)
