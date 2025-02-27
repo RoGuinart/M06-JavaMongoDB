@@ -1,43 +1,31 @@
 package dam.m06.uf3;
 
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
 
-import org.bson.Document;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Thread
 {
-	private static int id_count; // TODO: get highest thread ID
-	private int id;
-	private int reply_count = 1; // Used to create message ID when replying
+	private String _id;
 	private Message main_post;
 	private ArrayList<Message> replies;
 
 	public Thread(Message main_post)
 	{
-		main_post.setId(0);
-		this.main_post = main_post;
-		this.replies = new ArrayList<Message>();
-		this.id = id_count++;
+		this(main_post, new ArrayList<Message>());
 	}
 
-	public Thread(int id, Message main_post)
+	public Thread(Message main_post, ArrayList<Message> replies)
 	{
-		this(main_post);
-		this.id = id;
+		this(null, main_post, replies);
 	}
 
-	public Thread(int id, Message main_post, ArrayList<Message> replies)
+	public Thread(String _id, Message main_post, ArrayList<Message> replies)
 	{
-		this.id = id;
+		this._id = _id;
 		this.main_post = main_post;
 		this.replies = replies;
-
-		if(!replies.isEmpty())
-			this.reply_count = replies.getLast().getId() + 1;
-
-		if(id > id_count)
-			id_count = id + 1;
 	}
 
 	/**
@@ -45,13 +33,12 @@ public class Thread
 	 */
 	public void reply(Message reply)
 	{
-		reply.setId(reply_count++);
 		//replies.add(reply);
 	}
 
-	public int getId()
+	public String getId()
 	{
-		return id;
+		return _id;
 	}
 
 	public Message getMainPost()
@@ -64,33 +51,38 @@ public class Thread
 		return replies;
 	}
 
-	public Document toDocument()
+	public String toJson()
 	{
-		Document doc = new Document();
-		ArrayList<Document> replyDoc = new ArrayList<Document>();
+		JSONObject jsonObject = new JSONObject();
+		JSONArray repliesJSON = new JSONArray();
 		for (Message msg : replies)
-			replyDoc.add(msg.toDocument());
+			repliesJSON.put(msg.toJson());
 
-		doc.append("thread_id", id)
-		.append("main_post", main_post.toDocument())
-		.put("replies", replyDoc);
+		jsonObject.put("_id", _id);
+		jsonObject.put("main_post", main_post.toJson());
+		jsonObject.put("replies", replies.toString());
 
-		return doc;
+		System.out.println(jsonObject);
+		return jsonObject.toString();
 	}
 
-	public static Thread parseDocument(Document doc)
+	public static Thread parseJson(JSONObject json)
 	{
-		int id = (Integer) doc.get("thread_id");
-		Message main_post = Message.parseDocument((Document) doc.get("main_post"));
-
-		ArrayList<Document> replyDoc = (ArrayList<Document>) doc.get("replies");
+		String _id;
+		Message main_post;
 		ArrayList<Message> replies = new ArrayList<Message>();
-		for (Document reply : replyDoc) {
-			replies.add(Message.parseDocument(reply));
+
+		_id = json.getString("_id");
+		main_post = Message.parseJson(json.getJSONObject("main_post"));
+		JSONArray replyJson = json.getJSONArray("replies");
+		for (int i = 0; i < replyJson.length(); i++) {
+			JSONObject jsonObject = replyJson.getJSONObject(i);
+
+			replies.add(Message.parseJson(jsonObject));
 		}
 
-		return new Thread(id, main_post, replies);
-	} 
+		return new Thread(_id, main_post, replies);
+	}
 
 	@Override
 	public String toString()

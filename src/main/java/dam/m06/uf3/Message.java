@@ -1,44 +1,29 @@
 package dam.m06.uf3;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
-import org.bson.Document;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Message
 {
-	private int id;
 	private String text;
-	private LocalDateTime date;
+	private ZonedDateTime date;
 	private String attachment; // Link to document
-
-	public Message(int id, String text)
-	{
-		this(id, text, null, LocalDateTime.now());
-	}
 
 	public Message(String text, String attachment)
 	{
-		this.text = text;
-		this.attachment = attachment;
-		this.date = LocalDateTime.now();
+		this(text, attachment, ZonedDateTime.now());
 	}
 
-	public Message(int id, String text, String attachment, LocalDateTime date)
+	public Message(String text, String attachment, ZonedDateTime date)
 	{
-		this.id = id;
 		this.text = text;
 		this.attachment = attachment;
 		this.date = date;
-	}
-
-	public void setId(int id)
-	{
-		this.id = id;
-	}
-
-	public int getId()
-	{
-		return id;
 	}
 
 	public String getText()
@@ -51,32 +36,32 @@ public class Message
 		return attachment;
 	}
 
-	public Document toDocument()
+	public String toJson()
 	{
-		Document doc = new Document();
-
-		doc.append("reply_id", id)
-		.append("date_posted", date.toString())
-		.append("text", text);
-
-		if(attachment != null)
-			doc.append("attachment", attachment);
-
-		return doc;
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("date_posted", date.format(DateTimeFormatter.ISO_INSTANT));
+		jsonObject.put("text", text);
+		jsonObject.put("attachment", attachment); // Link to document
+		return jsonObject.toString();
 	}
 
-	public static Message parseDocument(Document doc)
+	public static Message parseJson(JSONObject json)
 	{
-		int reply_id = (Integer) doc.get("reply_id");
+		ZonedDateTime date;
+		String dateStr = json.getString("date_posted");
+		date = (dateStr != null) ? ZonedDateTime.ofInstant(Instant.parse(dateStr), ZoneId.of("UTC")) : null;
 
-		LocalDateTime date;
-		String dateStr = (String) doc.get("date_posted");
-		date = (dateStr != null) ? LocalDateTime.parse(dateStr) : null;
+		String text = json.getString("text");
+		String attachment;
 
-		String text = (String) doc.get("text");
-		String attachment = (String) doc.get("attachment");
+		// How to check for optional parameters???
+		try {
+			attachment = json.getString("attachment");
+		} catch (JSONException e) {
+			attachment = null;
+		}
 
-		return new Message(reply_id, text, attachment, date);
+		return new Message(text, attachment, date);
 	}
 
 	@Override
