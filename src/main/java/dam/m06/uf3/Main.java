@@ -1,21 +1,14 @@
 package dam.m06.uf3;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import org.bson.conversions.Bson;
-
-import com.mongodb.client.model.Filters;
 
 public class Main
 {
 	public static void main(String[] args)
 	{
 		Scanner in = new Scanner(System.in);
-
-		// Dirty way to setup Thread's id_count variable
-		Model.GetThreads(null);
 
 		int choice;
 		do {
@@ -29,7 +22,7 @@ public class Main
 			}
 			case 1: // See threads
 			{
-				ArrayList<Thread> thrs = Model.GetThreads(null);
+				ArrayList<Thread> thrs = Model.GetThreads(null, null);
 				View.SeeThreads(thrs, true);
 				
 				break;
@@ -48,13 +41,13 @@ public class Main
 			}
 			case 4: // Delete thread
 			{
-				Thread thr = View.getThread(in, Model.GetThreads(null));
+				Thread thr = View.getThread(in, Model.GetThreads(null, null));
 				Model.DeleteThread(thr);
 				break;
 			}
 			case 5: // See messages on thread
 			{
-				ArrayList<Thread> thrs = Model.GetThreads(null);
+				ArrayList<Thread> thrs = Model.GetThreads(null, null);
 				Thread thr = View.getThread(in, thrs);
 				
 				View.SeeReplies(thr, false);
@@ -62,7 +55,7 @@ public class Main
 			}
 			case 6: // Reply to a thread
 			{
-				Thread thr = View.getThread(in, Model.GetThreads(null));
+				Thread thr = View.getThread(in, Model.GetThreads(null, null));
 
 				// Cancel
 				if(thr == null)
@@ -75,7 +68,7 @@ public class Main
 			}
 			case 7: // Delete message on a thread
 			{
-				Thread thr = View.getThread(in, Model.GetThreads(null));
+				Thread thr = View.getThread(in, Model.GetThreads(null, null));
 
 				// Cancel
 				if(thr == null)
@@ -98,37 +91,13 @@ public class Main
 
 	private static void SeeThreadsByDate(Scanner in)
 	{
-		LocalDateTime date_min, date_max;
-		Bson filter;
+		Instant date_min, date_max;
 
-		boolean loop;
+		System.out.println("Format YYYY-MM-DD (HH:mm:SS) (blank for no date)");
+		date_min = View.getDate(in, "Please write the minimum date: ");
+		date_max = View.getDate(in, "Please write the maximum date: ");
 
-		do {
-			loop = false;
-			System.out.println("Format YYYY-MM-DD HH:mm:SS (blank for no date)");
-			date_min = View.getDate(in, "Please write the minimum date: ");
-			date_max = View.getDate(in, "Please write the maximum date: ");
-
-			if(date_min == null && date_max == null) {
-				System.err.println("You must write at least one date!");
-				loop = true;
-			}
-		} while (loop);
-
-		final String fieldName = "main_post.date_posted";
-
-		if(date_min == null) {
-			filter = Filters.lte(fieldName, date_max.toString());
-		} else if(date_max == null) {
-			filter = Filters.gte(fieldName, date_min.toString());
-		} else {
-			filter = Filters.and(
-				Filters.gte(fieldName, date_min.toString()), 
-				Filters.lte(fieldName, date_max.toString())
-			);
-		}
-
-		ArrayList<Thread> thrs = Model.GetThreads(filter);
+		ArrayList<Thread> thrs = Model.GetThreads(date_min, date_max);
 		View.SeeThreads(thrs, false);
 
 	}

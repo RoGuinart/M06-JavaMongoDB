@@ -1,6 +1,8 @@
 package dam.m06.uf3;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -58,7 +60,7 @@ public class View
 		int i = 1;
 		System.out.println(thr);
 		for (Message msg : thr.getReplies()) {
-			System.out.printf("%3d. %s\n", numbered ? i++ : msg.getId(), msg.getText());
+			System.out.printf("%3d. %s\n", i++, msg.getText());
 		}
 		System.out.println(); // Blank line
 	}
@@ -260,24 +262,39 @@ public class View
 		return msgs.get(result-1);
 	}
 
-	public static LocalDateTime getDate(Scanner in, String prompt)
+	public static Instant getDate(Scanner in, String prompt)
 	{
 		boolean error;
 		String dateStr;
-		LocalDateTime date = null;
+		String dateStrCmp[];
+		int dateInt[] = new int[7];
+		Instant date = null;
 		do {
 			error = false;
 			try {
 				dateStr = getString(in, prompt);
 				if(dateStr.equals(""))
-					return null;
+					return Instant.now();
 
-				dateStr = dateStr.replace(' ', 'T'); // Nevessary for ISO 8601
+				dateStrCmp = dateStr.split("[-/:\\s\\.T]");
+				for (int i = 0; i < 7; i++) {
+					if(i < dateStrCmp.length)
+						dateInt[i] = Integer.parseInt(dateStrCmp[i]);
+					else
+						dateInt[i] = 0;
+				}
 
-				date = LocalDateTime.parse(dateStr);
+				LocalDateTime localDate = LocalDateTime.of (
+					dateInt[0], dateInt[1], dateInt[2], // Year, month, day
+					dateInt[3], dateInt[4], dateInt[5], // Hour, minute, second
+					dateInt[6]                          // Nanosecond
+				);
+
+				date = localDate.toInstant(ZoneOffset.UTC);
 			} catch (Exception e) {
+				e.printStackTrace();
 				error = true;
-				System.err.println("Invalid date! Format is 'YYYY-MM-DD HH:mm:SS'");
+				System.err.println("Invalid date! Format is 'YYYY-MM-DD (HH:mm:SS)'");
 			}
 
 		} while (error);
