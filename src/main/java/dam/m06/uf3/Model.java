@@ -120,17 +120,23 @@ public class Model
 
 	public static void DeleteReply(Thread thr, Message reply)
 	{
-/*
-		MongoDatabase db = ConnectionManager.getConnection();
-		MongoCollection<Document> collection = db.getCollection("Threads");
+		final String url = String.format("%s/thread/%s/%s", API_URL, thr.getId(), reply.getId());
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("text", thr.getMainPost().getText());
 
-		Document query = new Document().append("thread_id", thr.getId());
-		Bson update = Updates.pull("replies", reply.toJson());
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(URI.create(url))
+			.header("Content-Type", "application/json")
+			.DELETE()
+			.build();
 
-		collection.updateOne(query, update);
-
-		ConnectionManager.closeConnection();
-*/
+		try {
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			System.out.println(response.body());
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
