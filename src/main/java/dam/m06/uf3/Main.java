@@ -93,7 +93,7 @@ public class Main
 	{
 		Instant date_min, date_max;
 
-		System.out.println("Format YYYY-MM-DD (HH:mm:SS) (blank for no date)");
+		System.out.println("Format YYYY-MM-DD (HH:mm:SS) (blank for current time)");
 		date_min = View.getDate(in, "Please write the minimum date: ");
 		date_max = View.getDate(in, "Please write the maximum date: ");
 

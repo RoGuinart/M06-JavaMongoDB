@@ -292,7 +292,6 @@ public class View
 
 				date = localDate.toInstant(ZoneOffset.UTC);
 			} catch (Exception e) {
-				e.printStackTrace();
 				error = true;
 				System.err.println("Invalid date! Format is 'YYYY-MM-DD (HH:mm:SS)'");
 			}
