@@ -53,7 +53,7 @@ public class Model
 		MongoDatabase db = ConnectionManager.getConnection();
 		MongoCollection<Document> collection = db.getCollection("Threads");
 
-		Document query = new Document().append("thread_id", thr.getId());
+		Document query = new Document().append("_id", thr.getId());
 
 		collection.deleteOne(thr.toDocument());
 
@@ -78,7 +78,7 @@ public class Model
 
 		thr.reply(reply); // Set message ID in the thread
 
-		Document query = new Document().append("thread_id", thr.getId());
+		Document query = new Document().append("_id", thr.getId());
 		Bson update = Updates.addToSet("replies", reply.toDocument());
 
 		collection.updateOne(query, update);
@@ -92,7 +92,7 @@ public class Model
 		MongoDatabase db = ConnectionManager.getConnection();
 		MongoCollection<Document> collection = db.getCollection("Threads");
 
-		Document query = new Document().append("thread_id", thr.getId());
+		Document query = new Document().append("_id", thr.getId());
 		Bson update = Updates.pull("replies", reply.toDocument());
 
 		collection.updateOne(query, update);

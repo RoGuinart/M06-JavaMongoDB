@@ -58,7 +58,7 @@ public class View
 		int i = 1;
 		System.out.println(thr);
 		for (Message msg : thr.getReplies()) {
-			System.out.printf("%3d. %s\n", numbered ? i++ : msg.getId(), msg.getText());
+			System.out.printf("%3d. %s\n", i++, msg.getText());
 		}
 		System.out.println(); // Blank line
 	}

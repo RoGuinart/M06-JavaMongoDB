@@ -14,9 +14,6 @@ public class Main
 	{
 		Scanner in = new Scanner(System.in);
 
-		// Dirty way to setup Thread's id_count variable
-		Model.GetThreads(null);
-
 		int choice;
 		do {
 			choice = View.menu(in);

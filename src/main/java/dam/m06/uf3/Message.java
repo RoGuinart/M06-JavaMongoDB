@@ -1,44 +1,41 @@
 package dam.m06.uf3;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 public class Message
 {
-	private int id;
+	private ObjectId _id;
 	private String text;
-	private LocalDateTime date;
+	private ZonedDateTime date;
 	private String attachment; // Link to document
-
-	public Message(int id, String text)
-	{
-		this(id, text, null, LocalDateTime.now());
-	}
 
 	public Message(String text, String attachment)
 	{
-		this.text = text;
-		this.attachment = attachment;
-		this.date = LocalDateTime.now();
+		this(text, attachment, ZonedDateTime.now());
 	}
 
-	public Message(int id, String text, String attachment, LocalDateTime date)
+	public Message(String text, String attachment, ZonedDateTime date)
 	{
-		this.id = id;
+		this(new ObjectId(), text, attachment, date);
+	}
+
+	public Message(ObjectId _id, String text, String attachment, ZonedDateTime date)
+	{
+		this._id = _id;
 		this.text = text;
 		this.attachment = attachment;
 		this.date = date;
 	}
 
-	public void setId(int id)
+	public ObjectId getId()
 	{
-		this.id = id;
-	}
-
-	public int getId()
-	{
-		return id;
+		return _id;
 	}
 
 	public String getText()
@@ -53,10 +50,9 @@ public class Message
 
 	public Document toDocument()
 	{
-		Document doc = new Document();
+		Document doc = new Document("_id", _id);
 
-		doc.append("reply_id", id)
-		.append("date_posted", date.toString())
+		doc.append("date_posted", date.format(DateTimeFormatter.ISO_INSTANT))
 		.append("text", text);
 
 		if(attachment != null)
@@ -67,16 +63,16 @@ public class Message
 
 	public static Message parseDocument(Document doc)
 	{
-		int reply_id = (Integer) doc.get("reply_id");
+		ObjectId _id = doc.getObjectId("_id");
 
-		LocalDateTime date;
-		String dateStr = (String) doc.get("date_posted");
-		date = (dateStr != null) ? LocalDateTime.parse(dateStr) : null;
+		ZonedDateTime date;
+		String dateStr = doc.getString("date_posted");
+		date = (dateStr != null) ? ZonedDateTime.ofInstant(Instant.parse(dateStr), ZoneId.of("UTC")) : null;
 
-		String text = (String) doc.get("text");
-		String attachment = (String) doc.get("attachment");
+		String text = doc.getString("text");
+		String attachment = doc.getString("attachment");
 
-		return new Message(reply_id, text, attachment, date);
+		return new Message(_id, text, attachment, date);
 	}
 
 	@Override
